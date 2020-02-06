@@ -64,138 +64,39 @@ function cell(y,x,size){
     }
     
   }
-/*   createMazeTwoDimInterval=(inputArr, FPS)=>{  //low performance
-    let mazePath=[]
-    console.log(inputArr)
-    let currentCell=inputArr[0][0]
-    let i=0;
-    let newVisitedCells=1;
-    let createMaze=setInterval(()=>{
-      if(newVisitedCells>=((inputArr.length*inputArr[0].length))){
-        clearInterval(createMaze)
-        console.log('maze created')
-        
-      }
-      if(currentCell!==undefined){
-        let cY=currentCell.y
-        let cX=currentCell.x
-        currentCell.enter.push(i)
-      if(inputArr[cY-1]!==undefined && !inputArr[cY-1][cX].visited){
-        currentCell.neighbors.push(inputArr[cY-1][cX])
-      }
-      if(inputArr[cY][cX+1]!==undefined && !inputArr[cY][cX+1].visited){
-        currentCell.neighbors.push(inputArr[cY][cX+1])
-      }
-      if(inputArr[cY+1]!==undefined && !inputArr[cY+1][cX].visited){
-        currentCell.neighbors.push(inputArr[cY+1][cX])
-      }
-      if(inputArr[cY][cX-1]!==undefined && !inputArr[cY][cX-1].visited){
-        currentCell.neighbors.push(inputArr[cY][cX-1])
-      }
-      currentCell.visited=true;
-      if(currentCell.neighbors.length>0){
-        let randomPick=Math.floor(Math.random()*currentCell.neighbors.length);
-        let nextCell=currentCell.neighbors[randomPick]
-        currentCell.neighbors=[]
-        newVisitedCells++
-        let xMove=currentCell.x-nextCell.x;
-        let yMove=currentCell.y-nextCell.y;
-        switch(xMove){
-          case -1:
-          { 
-            currentCell.walls[1]=false;
-            nextCell.walls[3]=false;
-            scene.remove(currentCell.wallMesh[1])
-            scene.remove(nextCell.wallMesh[3])
-            break;
-          }
-          case 1:
-          { 
-            currentCell.walls[3]=false;
-            nextCell.walls[1]=false;
-            scene.remove(currentCell.wallMesh[3])
-            scene.remove(nextCell.wallMesh[1])
-            break;
-          }
-          default:{
-  
-          }
-        }
-        switch(yMove){
-          case -1:
-          { 
-            currentCell.walls[2]=false;
-            nextCell.walls[0]=false;
-            scene.remove(currentCell.wallMesh[2])
-            scene.remove(nextCell.wallMesh[0])
-            break;
-          }
-          case 1:
-          { 
-            currentCell.walls[0]=false;
-            nextCell.walls[2]=false;
-            scene.remove(currentCell.wallMesh[0])
-            scene.remove(nextCell.wallMesh[2])
-            break;
-          }
-          default:{
-             
-          }
-        }
-        mazePath.push(currentCell)
-        currentCell=nextCell;
-        
-        
-      }
-      else if(currentCell.neighbors.length===0){
-        if(mazePath.length>0){
-          currentCell=mazePath.pop()
-          currentCell.returnedTo=true;
-        }
-      }
-    }
-    cube.position.x=currentCell.x;
-    cube.position.z=currentCell.y;
-    i++;
-    },1000/FPS)
-    return inputArr
-  } */
-var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-      var controls = new THREE.OrbitControls( camera );
+
+const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+      const controls = new THREE.OrbitControls( camera );
       worldOffset={x:0,y:0}
-      var texture = new THREE.TextureLoader().load( "./background.png" );
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set( 1, 1 );
 
-			var renderer = new THREE.WebGLRenderer();
+
+      /* create renderer with its canvas and append it to the dom */
+			const renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( renderer.domElement );
+      document.body.appendChild( renderer.domElement );
 
+      /* create outer box */
+			const worldMesh= new THREE.Mesh( new THREE.BoxGeometry(80,80,80) , new THREE.MeshPhongMaterial({color:0xfffff0,side: THREE.BackSide }))
 
-      var geometry = new THREE.SphereGeometry( 1,120,120 );
-      geometry=new THREE.BoxGeometry(1,3,1);
-			var plane= new THREE.BoxGeometry(80,80,80);
-      // create some basic material
-			var material = new THREE.MeshPhongMaterial( { color: "rgb(250,250,250)"} );
-			var matTwo=new THREE.MeshPhongMaterial({color:0xfffff0,side: THREE.BackSide });
-			var cube = new THREE.Mesh( geometry, material );
-			var myPlane= new THREE.Mesh( plane , matTwo)
-			var light = new THREE.PointLight( 0xffffff, 1, 0,1 );
-			var lighst = new THREE.DirectionalLight( 0xffffff,1,0,2);
+      /* create geometry to track the current node */
+			const trackerMesh = new THREE.Mesh( new THREE.SphereGeometry( 1,120,120 ), new THREE.MeshPhongMaterial( { color: "rgb(250,250,250)"} ) );
+      
+      const light = new THREE.PointLight( 0xffffff, 1, 0,1 );
 			light.position.set( 20, 30, 20 );
-			var helper=new THREE.PointLightHelper(light)
-			var gridHelper=new THREE.GridHelper( 40,40)
-			scene.add( light );
-			scene.add( cube );
-      scene.add( myPlane );
-      myPlane.position.x=24;
-      myPlane.position.z=24;
-      myPlane.position.y=40;
+      
+      /* add stuff to the scene so it can be used */
+      scene.add( light );
+			scene.add( trackerMesh );
+      scene.add( worldMesh );
+      
+      worldMesh.position.x=24;
+      worldMesh.position.z=24;
+      worldMesh.position.y=40;
 			camera.position.z = 5
 			camera.position.y=5;
-			cubeDirection=0.02;
+      
+      /* update orbit controlls */
       controls.update()
 
 			
@@ -212,7 +113,7 @@ var scene = new THREE.Scene();
         // setup
         //this.x=13;  
         let mazePath=[]
-        console.log(inputArr)
+        //console.log(inputArr)
         let currentCell=inputArr[0][0]
         let i=0;
         let newVisitedCells=1;
@@ -305,9 +206,9 @@ var scene = new THREE.Scene();
             }
           }
         }
-        cube.position.x=currentCell.x;
-        cube.position.z=currentCell.y+(cube.scale.z/2.0);
-        console.log(currentCell.x)
+        trackerMesh.position.x=currentCell.x;
+        trackerMesh.position.z=currentCell.y+(trackerMesh.scale.z/2.0);
+        //console.log(currentCell.x)
         i++;
         }
 
